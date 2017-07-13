@@ -108,4 +108,81 @@ public class TestMoney {
         assertEquals("$1.50 + $1.50 = $1.xx", 3, sum.getDollars());
         assertEquals("$1.50 + $1.50 = $x.00", 0, sum.getCents());
     }
+
+    @Test
+    public void testCompare1() {
+        Money ammount1 = new Money(0.50);
+        Money ammount2 = new Money(0.50);
+        assertEquals(0, ammount1.compare(ammount2));
+    }
+
+    @Test
+    public void testCompare2() {
+        Money ammount1 = new Money(1.00);
+        Money ammount2 = new Money(1.00);
+        assertEquals(0, ammount1.compare(ammount2));
+    }
+
+    @Test
+    public void testCompare3() {
+        Money ammount1 = new Money(1.50);
+        Money ammount2 = new Money(1.50);
+        assertEquals(0, ammount1.compare(ammount2));
+    }
+
+    @Test
+    public void testCompare4() {
+        Money ammount1 = new Money(1.00);
+        Money ammount2 = new Money(2.00);
+        assertEquals(-1, ammount1.compare(ammount2));
+    }
+
+    @Test
+    public void testCompare5() {
+        Money ammount1 = new Money(0.50);
+        Money ammount2 = new Money(0.60);
+        assertEquals(-1, ammount1.compare(ammount2));
+    }
+
+    @Test
+    public void testCompare6() {
+        Money ammount1 = new Money(1.50);
+        Money ammount2 = new Money(1.57);
+        assertEquals(-1, ammount1.compare(ammount2));
+    }
+
+    @Test
+    public void testCompare7() {
+        Money ammount1 = new Money(1.50);
+        Money ammount2 = new Money(2.40);
+        assertEquals(-1, ammount1.compare(ammount2));
+    }
+
+    @Test
+    public void testCompare8() {
+        Money ammount2 = new Money(1.00);
+        Money ammount1 = new Money(2.00);
+        assertEquals(1, ammount1.compare(ammount2));
+    }
+
+    @Test
+    public void testCompare9() {
+        Money ammount2 = new Money(0.50);
+        Money ammount1 = new Money(0.60);
+        assertEquals(1, ammount1.compare(ammount2));
+    }
+
+    @Test
+    public void testCompare10() {
+        Money ammount2 = new Money(1.50);
+        Money ammount1 = new Money(1.57);
+        assertEquals(1, ammount1.compare(ammount2));
+    }
+
+    @Test
+    public void testCompare11() {
+        Money ammount2 = new Money(1.50);
+        Money ammount1 = new Money(2.40);
+        assertEquals(1, ammount1.compare(ammount2));
+    }
 }

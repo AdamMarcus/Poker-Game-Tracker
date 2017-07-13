@@ -4,6 +4,8 @@ package com.company;
 
 /**
  * Created by adamaustin on 7/3/17.
+ *
+ * This class will manage the profile of a player who plays in a game and their stats for that game.
  */
 public class GameProfile {
     private static Player player;
@@ -12,10 +14,18 @@ public class GameProfile {
     private static Money totalBuyIn;
     private static Money payOut = new Money(0.00);
 
+    public GameProfile() {
+
+    }
+
+    public GameProfile(Player _player) {
+        this.player = _player;
+    }
+
     GameProfile(Player _player, Money _cashBuyIn, Money _creditBuyIn) {
-        player = _player;
-        cashBuyIn = _cashBuyIn;
-        creditBuyIn = _creditBuyIn;
-        totalBuyIn = _cashBuyIn.add(_creditBuyIn);
+        this.player = _player;
+        this.cashBuyIn = _cashBuyIn;
+        this.creditBuyIn = _creditBuyIn;
+        this.totalBuyIn = _cashBuyIn.add(_creditBuyIn);
     }
 }
