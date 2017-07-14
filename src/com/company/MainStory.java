@@ -70,8 +70,10 @@ public class MainStory extends Application {
         Button mainMenuButton = new Button("Main Menu");
         mainMenuButton.setOnAction(e -> mainStage.setScene(mainScene));
 
-        StackPane newGamePane = new StackPane();
+        AnchorPane newGamePane = new AnchorPane();
         newGamePane.getChildren().addAll(mainMenuButton);
+        newGamePane.setLeftAnchor(mainMenuButton, EDGE_OFFSET);
+        newGamePane.setBottomAnchor(mainMenuButton, EDGE_OFFSET);
         newGameScene = new Scene(newGamePane, WINDOW_WIDTH, WINDOW_HEIGHT);
 
         // Finalize the main stage and show.
