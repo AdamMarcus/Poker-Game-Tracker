@@ -4,6 +4,8 @@ import java.lang.Math;
 
 /**
  * Created by adamaustin on 7/3/17.
+ *
+ * This class represents money in dollars and cents.
  */
 public class Money {
     private int dollars = 0;

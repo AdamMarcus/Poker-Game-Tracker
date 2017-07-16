@@ -10,7 +10,10 @@ import javafx.stage.Stage;
 
 /**
  * Created by adamaustin on 7/14/17.
+ *
+ * This class is a window that asks the user to make a decision and allows yes or no answers.
  */
+
 public class DescisionPropmterAlert {
     static boolean result;
 
