@@ -11,6 +11,7 @@ import com.sun.scenario.effect.impl.prism.ps.PPSBlend_ADDPeer;
  * a set group of people.
  */
 public class RecurringGame {
+    private String name;
     private Player[] players = null;
     private Vector<Game> games = null;
     private Money totalPot = new Money();
@@ -19,7 +20,12 @@ public class RecurringGame {
 
     }
 
-    public RecurringGame(Player[] _players) {
+    public RecurringGame(String _name) {
+        name = _name;
+    }
+
+    public RecurringGame(String _name, Player[] _players) {
+        name = _name;
         players = new Player[_players.length];
         for (int i = 0; i < _players.length; i++) {
             players[i] = _players[i];
@@ -43,5 +49,9 @@ public class RecurringGame {
         for (int i = 0; i < _players.length; i++) {
             players[i] = _players[i];
         }
+    }
+
+    public String getName() {
+        return name;
     }
 }
