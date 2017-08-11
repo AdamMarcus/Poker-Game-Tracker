@@ -19,11 +19,13 @@ import java.util.List;
 public class MainStory extends Application {
 
     static Stage mainStage;
-    static Scene mainScene, newGameScene;
+    static Scene mainScene, newGameScene, recurringGameScene;
     static ListView<String> playerList = new ListView<>();
     static ListView<String> newGamePlayerList = new ListView<>();
-    static ListView<String> recuringGameList = new ListView<>();
-    static ListView<String> playersInRecuringGame = new ListView<>();
+    static ListView<String> recurringGameList = new ListView<>();
+    static ListView<String> playersInRecurringGame = new ListView<>();
+    static ListView<String> previouslyPlayedGames = new ListView<>();
+    static ListView<String> gameProfilesInGame = new ListView<>();
 
 
     static final int WINDOW_WIDTH = 800;
@@ -31,20 +33,29 @@ public class MainStory extends Application {
     static final double EDGE_OFFSET = 10;
 
     static final int NUM_ROWS = 5;
-    static final int NUM_COLMNS = 4;
+    static final int NUM_COLUMNS = 4;
 
     static List<Player> allPlayers = new LinkedList<Player>(Arrays.asList(new Player("Adam"), new Player("Sarah"), new Player("Claire"), new Player("Sam"), new Player("Jenn")));
     static List<Player> newGamePlayers = new LinkedList<Player>();
-    static List<RecurringGame> recuringGames = new LinkedList<RecurringGame>();
+    static List<RecurringGame> recurringGames = new LinkedList<RecurringGame>();
+    static List<Game> gamesInSeries = new LinkedList<Game>();
+    static List<GameProfile> gameProfiles = new LinkedList<GameProfile>();
 
+    Label totalPotStat;
+    Label gameTypeStat;
+    Label activeStat;
 
-
+    static RecurringGame selectedRecurringGame = null;
 
     public static void main(String[] args) {
         Player[] playerSet1 = new Player[]{allPlayers.get(0), allPlayers.get(1)};
         Player[] playerSet2 = {allPlayers.get(2), allPlayers.get(3), allPlayers.get(4)};
-        recuringGames.add(new RecurringGame("2 players", playerSet1));
-        recuringGames.add(new RecurringGame("3 players", playerSet2));
+        recurringGames.add(new RecurringGame("2 players", playerSet1));
+        RecurringGame newGameSeries = new RecurringGame("3 players", playerSet2);
+        recurringGames.add(newGameSeries);
+        Game newGame = newGameSeries.newGame();
+        newGame.endgame();
+        newGame = newGameSeries.newGame();
         launch(args);
     }
 
@@ -53,48 +64,51 @@ public class MainStory extends Application {
         mainStage = primaryStage;
 
         // Make the main scene
-        Button playGameButton = new Button("Play Selected Game");
-        playGameButton.setOnAction(e -> AllertBox.displayAlert("Window is not implemented", "I am sorry, but the window you are trying to access is not yet implemented."));
+        Label recurringGameListLabel = new Label("Existing Game Series");
+        Label playersInRecurringGameLabel = new Label("Players in Game:");
 
-        Button newGameButton = new Button("New Game");
-        newGameButton.setOnAction(e -> {
-            mainStage.setScene(newGameScene);
-            refreshPlayerList();
-            refreshNewGamePlayerList();
-
-        });
-
-
-        GridPane mainScenePane = new GridPane();
-//        mainScenePane.setGridLinesVisible(true);
-        mainScenePane.setPadding(new Insets(EDGE_OFFSET, EDGE_OFFSET, EDGE_OFFSET, EDGE_OFFSET));
-        mainScenePane.setVgap(EDGE_OFFSET);
-        mainScenePane.setHgap(EDGE_OFFSET);
-
-        Label recuringGameListLabel = new Label("Existing Game Series");
-
-        recuringGameList.setOnMousePressed(e -> {
-            String name = recuringGameList.getSelectionModel().getSelectedItem();
+        recurringGameList.setOnMousePressed(e -> {
+            String name = recurringGameList.getSelectionModel().getSelectedItem();
             Player[] playersInGame = {};
-            for (int i = 0; i < recuringGames.size(); i++) {
-                if (name.compareTo(recuringGames.get(i).getName()) == 0) {
-                    playersInGame = recuringGames.get(i).getPlayers();
+            for (int i = 0; i < recurringGames.size(); i++) {
+                if (name.compareTo(recurringGames.get(i).getName()) == 0) {
+                    playersInGame = recurringGames.get(i).getPlayers();
                     break;
                 }
             }
             updatePlayersInRecurringGame(playersInGame);
         });
 
-        Label playersInRecuringGameLabel = new Label("Players in Game:");
+        Button playGameButton = new Button("Open Selected Game Series");
+        playGameButton.setOnAction(e -> {
+//            AllertBox.displayAlert("Window is not implemented", "I am sorry, but the window you are trying to access is not yet implemented.");
+            selectedRecurringGame = getRecurringGameWithName(recurringGameList.getSelectionModel().getSelectedItem().toString());
+            mainStage.setScene(recurringGameScene);
+            refreshRecurringGameList();
+            updateGamesInSeries(selectedRecurringGame);
+            refreshPreviouslyPlayedGamesList();
+        });
 
+        Button newGameButton = new Button("New Game");
+        newGameButton.setOnAction(e -> {
+            mainStage.setScene(newGameScene);
+            refreshPlayerList();
+            refreshNewGamePlayerList();
+        });
+
+        GridPane mainScenePane = new GridPane();
+//        mainScenePane.setGridLinesVisible(true);
+        mainScenePane.setMinSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+        mainScenePane.setPadding(new Insets(EDGE_OFFSET, EDGE_OFFSET, EDGE_OFFSET, EDGE_OFFSET));
+        mainScenePane.setVgap(EDGE_OFFSET);
+        mainScenePane.setHgap(EDGE_OFFSET);
         mainScenePane.add(playGameButton, 0, NUM_ROWS);
-        mainScenePane.add(recuringGameListLabel, 0, 0);
-        mainScenePane.add(recuringGameList, 0, 1);
-        mainScenePane.add(playersInRecuringGameLabel, NUM_COLMNS, 0);
-        mainScenePane.add(playersInRecuringGame, NUM_COLMNS, 1);
-        mainScenePane.add(newGameButton, NUM_COLMNS, NUM_ROWS);
+        mainScenePane.add(recurringGameListLabel, 0, 0);
+        mainScenePane.add(recurringGameList, 0, 1);
+        mainScenePane.add(playersInRecurringGameLabel, NUM_COLUMNS, 0);
+        mainScenePane.add(playersInRecurringGame, NUM_COLUMNS, 1);
+        mainScenePane.add(newGameButton, NUM_COLUMNS, NUM_ROWS);
         mainScene = new Scene(mainScenePane);
-
 
         // Make the New Game scene
         Label playerListLabel = new Label("Existing Players");
@@ -169,7 +183,7 @@ public class MainStory extends Application {
                 AllertBox.displayAlert("No New Game Name", "You must enter a name for your new game.");
                 insertNewGameName.clear();
             }
-            else if (isInRecuringGamesList(new RecurringGame(insertNewGameName.getText()))) {
+            else if (isInRecurringGamesList(new RecurringGame(insertNewGameName.getText()))) {
                 AllertBox.displayAlert("Game Name Taken", "A game with this name already exists.\n Please pick a different name for your game.");
                 insertNewGameName.clear();
             }
@@ -183,7 +197,7 @@ public class MainStory extends Application {
                 }
                 else {
                     RecurringGame newRecurringGame = new RecurringGame(insertNewGameName.getText(), playersInNewGame);
-                    recuringGames.add(newRecurringGame);
+                    recurringGames.add(newRecurringGame);
                     insertNewGameName.clear();
                     newGamePlayers.clear();
                     refreshNewGamePlayerList();
@@ -195,6 +209,7 @@ public class MainStory extends Application {
 
         GridPane newGamePane = new GridPane();
 //        newGamePane.setGridLinesVisible(true);
+        newGamePane.setMinSize(WINDOW_WIDTH, WINDOW_HEIGHT);
         newGamePane.setPadding(new Insets(EDGE_OFFSET, EDGE_OFFSET, EDGE_OFFSET, EDGE_OFFSET));
         newGamePane.setVgap(EDGE_OFFSET);
         newGamePane.setHgap(EDGE_OFFSET);
@@ -204,13 +219,121 @@ public class MainStory extends Application {
         newGamePane.add(insertNameTextField, 0, NUM_ROWS - 2);
         newGamePane.add(addNewPlayerButton, 0, NUM_ROWS - 1);
         newGamePane.add(mainMenuButton, 0, NUM_ROWS);
-        newGamePane.add(newGamePlayerListLabel, NUM_COLMNS, 0);
-        newGamePane.add(newGamePlayerList, NUM_COLMNS, 1);
-        newGamePane.add(clearNewPlayers, NUM_COLMNS, NUM_ROWS - 3);
-        newGamePane.add(newGameNameLabel, NUM_COLMNS, NUM_ROWS - 2);
-        newGamePane.add(insertNewGameName, NUM_COLMNS, NUM_ROWS - 1);
-        newGamePane.add(createNewGame, NUM_COLMNS, NUM_ROWS);
+        newGamePane.add(newGamePlayerListLabel, NUM_COLUMNS, 0);
+        newGamePane.add(newGamePlayerList, NUM_COLUMNS, 1);
+        newGamePane.add(clearNewPlayers, NUM_COLUMNS, NUM_ROWS - 3);
+        newGamePane.add(newGameNameLabel, NUM_COLUMNS, NUM_ROWS - 2);
+        newGamePane.add(insertNewGameName, NUM_COLUMNS, NUM_ROWS - 1);
+        newGamePane.add(createNewGame, NUM_COLUMNS, NUM_ROWS);
         newGameScene = new Scene(newGamePane);
+
+        // Make the recurring game scene
+        Label oldGamesLabel = new Label("Old Games");
+        Label statsLabel = new Label("Statistics");
+        Label totalPotLabel = new Label("Pot Total:");
+        Label gameTypeLabel = new Label("Game Type:");
+        Label activeStateLabel = new Label("Active:");
+
+        totalPotStat = new Label();
+        gameTypeStat = new Label();
+        activeStat = new Label();
+
+        Button playNewGameButton = new Button("Play New Game");
+        playNewGameButton.setOnAction(e -> {
+
+        });
+
+        Button viewPlayerDataButton = new Button("View Player Data");
+        viewPlayerDataButton.setOnAction(e -> {
+
+        });
+
+        Button mainMenuButton2 = new Button("Main Menu");
+        mainMenuButton2.setOnAction(e -> {
+            mainStage.setScene(mainScene);
+            newGamePlayers.clear();
+            refreshRecurringGameList();
+            insertNewGameName.clear();
+            insertNameTextField.clear();
+        });
+
+        previouslyPlayedGames.setOnMousePressed(e -> {
+            Game selectedGame = selectedRecurringGame.getGameWithDate(previouslyPlayedGames.getSelectionModel().getSelectedItem());
+            updateStatistics(selectedGame);
+        });
+
+        GridPane recurringGamePane = new GridPane();
+        recurringGamePane.setMinSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+        recurringGamePane.setPadding(new Insets(EDGE_OFFSET, EDGE_OFFSET, EDGE_OFFSET, EDGE_OFFSET));
+        recurringGamePane.setHgap(EDGE_OFFSET);
+        recurringGamePane.setVgap(EDGE_OFFSET);
+        recurringGamePane.add(oldGamesLabel, 0, 0);
+        recurringGamePane.add(previouslyPlayedGames, 0, 1);
+        recurringGamePane.add(mainMenuButton2, 0, NUM_ROWS);
+        recurringGamePane.add(statsLabel, NUM_COLUMNS - 1, 0);
+        recurringGamePane.add(gameTypeLabel, NUM_COLUMNS - 1, 1);
+        recurringGamePane.add(totalPotLabel, NUM_COLUMNS - 1, 2);
+        recurringGamePane.add(activeStateLabel, NUM_COLUMNS - 1, 3);
+        recurringGamePane.add(gameTypeStat, NUM_COLUMNS, 1);
+        recurringGamePane.add(totalPotStat, NUM_COLUMNS , 2);
+        recurringGamePane.add(activeStat, NUM_COLUMNS , 3);
+        recurringGamePane.add(viewPlayerDataButton, NUM_COLUMNS, NUM_ROWS - 1);
+        recurringGamePane.add(playNewGameButton, NUM_COLUMNS, NUM_ROWS);
+        recurringGameScene = new Scene(recurringGamePane);
+
+        // Make the players in game scene
+//        Label playerProfilesListLabel = new Label("Player Profiles");
+//        Label statsLabel = new Label("Statistics");
+////        Label totalPotLabel = new Label("Pot Total:");
+////        Label gameTypeLabel = new Label("Game Type:");
+////        Label activeStateLabel = new Label("Active:");
+//
+////        totalPotStat = new Label();
+////        gameTypeStat = new Label();
+////        activeStat = new Label();
+//
+//        Button playNewGameButton = new Button("Play New Game");
+//        playNewGameButton.setOnAction(e -> {
+//
+//        });
+//
+//        Button viewPlayerDataButton = new Button("View Player Data");
+//        viewPlayerDataButton.setOnAction(e -> {
+//
+//        });
+//
+//        Button mainMenuButton2 = new Button("Main Menu");
+//        mainMenuButton2.setOnAction(e -> {
+//            mainStage.setScene(mainScene);
+//            newGamePlayers.clear();
+//            refreshRecurringGameList();
+//            insertNewGameName.clear();
+//            insertNameTextField.clear();
+//        });
+//
+//        previouslyPlayedGames.setOnMousePressed(e -> {
+//            Game selectedGame = selectedRecurringGame.getGameWithDate(previouslyPlayedGames.getSelectionModel().getSelectedItem());
+//            updateStatistics(selectedGame);
+//        });
+//
+//        GridPane recurringGamePane = new GridPane();
+//        recurringGamePane.setMinSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+//        recurringGamePane.setPadding(new Insets(EDGE_OFFSET, EDGE_OFFSET, EDGE_OFFSET, EDGE_OFFSET));
+//        recurringGamePane.setHgap(EDGE_OFFSET);
+//        recurringGamePane.setVgap(EDGE_OFFSET);
+//        recurringGamePane.add(oldGamesLabel, 0, 0);
+//        recurringGamePane.add(previouslyPlayedGames, 0, 1);
+//        recurringGamePane.add(mainMenuButton2, 0, NUM_ROWS);
+//        recurringGamePane.add(statsLabel, NUM_COLUMNS - 1, 0);
+//        recurringGamePane.add(gameTypeLabel, NUM_COLUMNS - 1, 1);
+//        recurringGamePane.add(totalPotLabel, NUM_COLUMNS - 1, 2);
+//        recurringGamePane.add(activeStateLabel, NUM_COLUMNS - 1, 3);
+//        recurringGamePane.add(gameTypeStat, NUM_COLUMNS, 1);
+//        recurringGamePane.add(totalPotStat, NUM_COLUMNS , 2);
+//        recurringGamePane.add(activeStat, NUM_COLUMNS , 3);
+//        recurringGamePane.add(viewPlayerDataButton, NUM_COLUMNS, NUM_ROWS - 1);
+//        recurringGamePane.add(playNewGameButton, NUM_COLUMNS, NUM_ROWS);
+//        recurringGameScene = new Scene(recurringGamePane);
 
         // Finalize the main stage and show.
         mainStage.setTitle("Poker Game Manager");
@@ -248,16 +371,37 @@ public class MainStory extends Application {
     }
 
     private void refreshRecurringGameList() {
-        recuringGameList.getItems().clear();
-        for (int i = 0; i < recuringGames.size(); i++) {
-            recuringGameList.getItems().add(recuringGames.get(i).getName());
+        recurringGameList.getItems().clear();
+        for (int i = 0; i < recurringGames.size(); i++) {
+            recurringGameList.getItems().add(recurringGames.get(i).getName());
+        }
+    }
+
+    private void refreshPreviouslyPlayedGamesList() {
+        previouslyPlayedGames.getItems().clear();
+        for (int i = 0; i < gamesInSeries.size(); i++) {
+            previouslyPlayedGames.getItems().add(gamesInSeries.get(i).getDate().toString());
         }
     }
 
     private void updatePlayersInRecurringGame(Player[] _players) {
-        playersInRecuringGame.getItems().clear();
+        playersInRecurringGame.getItems().clear();
         for (int i = 0; i < _players.length; i++) {
-            playersInRecuringGame.getItems().add(_players[i].getName());
+            playersInRecurringGame.getItems().add(_players[i].getName());
+        }
+    }
+
+    private void updateGamesInSeries(RecurringGame _gameSeries) {
+        gamesInSeries = _gameSeries.getAllGames();
+    }
+
+    private void updateStatistics(Game _game) {
+        totalPotStat.setText(_game.getGamePot().toString());
+        gameTypeStat.setText(_game.getGameType());
+        if (_game.isActive()) {
+            activeStat.setText("True");
+        } else {
+            activeStat.setText("False");
         }
     }
 
@@ -279,9 +423,9 @@ public class MainStory extends Application {
         return false;
     }
 
-    private static boolean isInRecuringGamesList(RecurringGame _game) {
-        for (int i = 0; i < recuringGames.size(); i++) {
-            if (_game.getName().compareTo(recuringGames.get(i).getName()) == 0) {
+    private static boolean isInRecurringGamesList(RecurringGame _game) {
+        for (int i = 0; i < recurringGames.size(); i++) {
+            if (_game.getName().compareTo(recurringGames.get(i).getName()) == 0) {
                 return true;
             }
         }
@@ -296,6 +440,16 @@ public class MainStory extends Application {
         }
         return null;
     }
+
+    private RecurringGame getRecurringGameWithName(String _name) {
+        for (int i = 0; i < recurringGames.size(); i++) {
+            if (_name.compareTo(recurringGames.get(i).getName()) == 0) {
+                return recurringGames.get(i);
+            }
+        }
+        return null;
+    }
+
 
 
 }

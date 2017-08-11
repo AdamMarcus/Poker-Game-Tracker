@@ -6,6 +6,8 @@ import com.company.Money;
 
 /**
  * Created by adamaustin on 7/3/17.
+ *
+ * This class tests the Money class
  */
 public class TestMoney {
 

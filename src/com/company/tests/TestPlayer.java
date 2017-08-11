@@ -9,6 +9,8 @@ import com.company.Player;
 
 /**
  * Created by adamaustin on 7/4/17.
+ *
+ * This class tests the Player class
  */
 public class TestPlayer {
 

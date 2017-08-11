@@ -9,6 +9,8 @@ import org.junit.Test;
 
 /**
  * Created by adamaustin on 7/11/17.
+ *
+ * This class tests the RecurringGame class
  */
 public class TestRecurringGame {
 
@@ -22,7 +24,7 @@ public class TestRecurringGame {
     @Test
     public void testConstructor2() {
         Player[] players = {new Player("Adam")};
-        RecurringGame newGame = new RecurringGame(players);
+        RecurringGame newGame = new RecurringGame("Test Game", players);
         assertEquals(null, newGame.getAllGames());
         assertEquals(players.length, newGame.getPlayers().length);
     }
@@ -30,7 +32,7 @@ public class TestRecurringGame {
     @Test
     public void testConstructor3() {
         Player[] players = {new Player("Adam"), new Player("Claire"), new Player("Sam"), new Player("Sarah"), new Player("Jenn")};
-        RecurringGame newGame = new RecurringGame(players);
+        RecurringGame newGame = new RecurringGame("Test Game", players);
         assertEquals(null, newGame.getAllGames());
         assertEquals(players.length, newGame.getPlayers().length);
     }

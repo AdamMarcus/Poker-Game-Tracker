@@ -1,5 +1,6 @@
 package com.company;
 
+import java.util.Date;
 import java.util.Vector;
 import com.company.Money;
 import com.sun.scenario.effect.impl.prism.ps.PPSBlend_ADDPeer;
@@ -13,7 +14,7 @@ import com.sun.scenario.effect.impl.prism.ps.PPSBlend_ADDPeer;
 public class RecurringGame {
     private String name;
     private Player[] players = null;
-    private Vector<Game> games = null;
+    private Vector<Game> games = new Vector<>();
     private Money totalPot = new Money();
 
     public RecurringGame() {
@@ -30,6 +31,12 @@ public class RecurringGame {
         for (int i = 0; i < _players.length; i++) {
             players[i] = _players[i];
         }
+    }
+
+    public Game newGame() {
+        Game newGame = new Game(players);
+        games.add(newGame);
+        return newGame;
     }
 
     public Player[] getPlayers() {
@@ -54,4 +61,14 @@ public class RecurringGame {
     public String getName() {
         return name;
     }
+
+    public Game getGameWithDate(String _date) {
+        for (int i = 0; i < games.size(); i++) {
+            if (games.get(i).getDate().toString().compareTo(_date) == 0) {
+                return games.get(i);
+            }
+        }
+        return null;
+    }
+
 }

@@ -2,6 +2,8 @@ package com.company;
 import com.company.GameProfile;
 import com.company.Game;
 
+import java.util.Date;
+
 /**
  * Created by adamaustin on 7/3/17.
  *
@@ -15,14 +17,25 @@ public class Game {
     private Money gamePot = new Money();
     private String gameType = null;
     private boolean active = true;
+    private Date date = null;
 
     public Game() {
         this.gameType = TEXAS_HOLDEM;
+        date = new Date();
     }
 
     public Game(Player[] _players) {
-
         this.gameType = TEXAS_HOLDEM;
+
+        GameProfile[] profiles = new GameProfile[_players.length];
+        for (int i = 0; i < profiles.length; i++) {
+            profiles[i] = new GameProfile(_players[i]);
+        }
+        date = new Date();
+    }
+
+    public void endgame() {
+        active = false;
     }
 
     public GameProfile[] getProfiles() {
@@ -43,6 +56,10 @@ public class Game {
 
     public String getGameType() {
         return gameType;
+    }
+
+    public Date getDate() {
+        return date;
     }
 
     public void setGameType(String gameType) {
